@@ -1,0 +1,18 @@
+---
+- name: Add RPM GPG keys
+  copy: src="{{ item }}" dest="{{ rpm_gpg_dir }}"
+  with_fileglob:
+    - "gpg/*"
+
+- name: Configure zabbix repo
+  template: dest=/etc/yum.repos.d/zabbix.repo
+            src=zabbix.j2
+
+- name: Install zabbix agent current release package
+  yum: name=zabbix-agent state=present
+  notify: Restart zabbix-agent
+
+- name: Configure zabbix agent
+  template: dest=/etc/zabbix/zabbix_agentd.conf
+            src=zabbix_agentd.j2
+  notify: Restart zabbix-agent
